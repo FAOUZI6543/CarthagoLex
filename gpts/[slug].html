@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarthagoLex</title>
+    <title>Détail du GPT</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,50 +43,35 @@
         .btn:hover {
             background: #2980b9;
         }
-        .gpt-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .gpt-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            width: 250px;
-            background: #fafafa;
-            text-align: left;
-        }
-        .gpt-card h3 {
-            margin-top: 0;
-        }
     </style>
 </head>
 <body>
     <header>
-        CarthagoLex
+        <a href="/" style="color:white;text-decoration:none;">CarthagoLex</a>
     </header>
     <div class="container">
-        <h1>Bienvenue sur CarthagoLex</h1>
-        <p>Votre plateforme juridique de référence.</p>
-        <a href="#" class="btn">En savoir plus</a>
-
-        <section id="featured-gpts">
-            <h2>GPTs en vedette</h2>
-            <div id="featured-grid" class="gpt-grid"></div>
-            <p><a href="/gpts" class="btn">Tous les GPTs</a></p>
-        </section>
+        <div id="gpt-detail"></div>
+        <p><a href="/gpts" class="btn">Retour</a></p>
     </div>
     <footer>
         &copy; 2025 CarthagoLex - Tous droits réservés.
     </footer>
     <script type="module">
-        import { gpts } from './data/gpts.js';
-        import { GPTCard } from './scripts/gpt-card.js';
+        import { gpts } from '../data/gpts.js';
 
-        const featured = gpts.filter(g => g.featured);
-        const grid = document.getElementById('featured-grid');
-        featured.forEach(g => grid.appendChild(GPTCard(g)));
+        const slug = window.location.pathname.split('/').pop().replace('.html', '');
+        const gpt = gpts.find(g => g.slug === slug);
+        const container = document.getElementById('gpt-detail');
+
+        if (gpt) {
+            container.innerHTML = `
+                <h1>${gpt.name}</h1>
+                <p>${gpt.description}</p>
+                <p><strong>Tags :</strong> ${gpt.tags.join(', ')}</p>
+            `;
+        } else {
+            container.innerHTML = '<p>GPT introuvable.</p>';
+        }
     </script>
 </body>
 </html>
