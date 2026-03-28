@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Build artifacts
+/dist/
+/build/
+
+# Log files
+*.log
+
+# Other standard development artifacts
+.DS_Store
+*.tgz
+*.cache
