@@ -1,45 +1,162 @@
-# CarthagoLEX
+# CarthagoLex
 
-CarthagoLEX is a sophisticated legal chatbot web application designed to assist users in navigating foreign law, social law, and labor law. This application aims to provide users with comprehensive legal consultation, document generation, case analysis, and legal training, equipped with intelligent features to facilitate understanding and compliance with legal frameworks across jurisdictions.
+Assistant juridique IA specialise en **droit des etrangers**, **droit administratif** et **droit de la securite sociale** en France.
 
-## Features
-
-### 1. Legal Consultation
-- **AI-Powered Guidance:** Get instant answers to legal inquiries regarding foreign, social, and labor law.
-- **Personalized Legal Advice:** Tailored recommendations based on user queries and situations.
-
-### 2. Document Generation
-- **Automated Document Creation:** Generate legal documents such as contracts, agreements, and other essential papers.
-- **Customizable Templates:** Use templates that can be personalized to fit individual user needs and legal requirements.
-
-### 3. Case Analysis
-- **Legal Case Evaluation:** Analyze legal cases by inputting relevant information and receiving insights based on existing laws and precedents.
-- **Outcome Predictions:** Leverage data analysis to estimate possible outcomes of legal proceedings.
-
-### 4. Legal Training
-- **Educational Resources:** Access a library of resources, tutorials, and courses covering various aspects of foreign, social, and labor law.
-- **Interactive Learning Modules:** Engage with interactive content to enhance understanding of complex legal concepts.
-
-## Getting Started
-
-To get started with CarthagoLEX, follow these steps:
-1. Clone the repository: `git clone https://github.com/FAOUZI6543/CarthagoLEX`
-2. Navigate to the project directory: `cd CarthagoLEX`
-3. Install the necessary dependencies: `npm install`
-4. Start the application: `npm start`
-
-## Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For further inquiries, please reach out to the development team at [support@carthagolex.com](mailto:support@carthagolex.com).
+Backend Python/Flask avec pipeline RAG (Retrieval-Augmented Generation) base sur FAISS et OpenAI.
 
 ---
 
-*Last updated: 2026-03-28 18:55:43 UTC*
+## Architecture
+
+```
+CarthagoLex/
+|-- app.py                    # Serveur Flask (point d'entree)
+|-- config.py                 # Configuration centrale
+|-- requirements.txt          # Dependances Python
+|-- .env.example              # Variables d'environnement (modele)
+|
+|-- chains/
+|   |-- rag_pipeline.py       # Pipeline RAG principal
+|   `-- rag_chain.py          # Interface appelable depuis app.py
+|
+|-- models/
+|   |-- retriever.py          # LegalRetriever (FAISS)
+|   `-- embedder.py           # Embeddings OpenAI
+|
+|-- utils/
+|   |-- citation_formatter.py # Formatage des sources
+|   `-- validators.py         # Validation qualite des sources
+|
+|-- prompts/
+|   `-- system_prompt.txt     # Prompt systeme CarthagoLex
+|
+|-- scripts/
+|   `-- index_documents.py    # Script d'indexation FAISS
+|
+|-- data/
+|   |-- docs/                 # Vos documents juridiques (.txt, .pdf, .md)
+|   `-- faiss_index/          # Index FAISS genere (cree automatiquement)
+|
+`-- index.html                # Interface web
+```
+
+---
+
+## Installation rapide
+
+### 1. Cloner et configurer
+
+```powershell
+git clone https://github.com/FAOUZI6543/CarthagoLex
+cd CarthagoLex
+
+# Copier et remplir le fichier .env
+copy .env.example .env
+# Editer .env et renseigner : OPENAI_API_KEY, LLM_MODEL, etc.
+```
+
+### 2. Environnement Python
+
+```powershell
+# Autoriser PowerShell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+# Creer et activer le virtualenv
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+
+# Installer les dependances
+pip install -r requirements.txt
+```
+
+### 3. Indexer vos documents (premiere fois)
+
+```bash
+# Placer vos documents PDF/TXT/MD dans data/docs/
+mkdir -p data/docs
+# ... copier vos fichiers ...
+
+# Indexer
+python scripts/index_documents.py --docs_dir data/docs --index_dir data/faiss_index
+```
+
+### 4. Lancer le serveur
+
+```bash
+python app.py
+# Ouvrir : http://localhost:5000
+```
+
+---
+
+## API REST
+
+| Methode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/chat` | Consultation juridique (RAG) |
+| POST | `/api/analyze` | Analyse de dossier |
+| POST | `/api/generate-document` | Generation de document |
+| GET | `/api/modes` | Liste des modes disponibles |
+| GET | `/api/health` | Etat du serveur |
+
+### Exemple de requete
+
+```json
+POST /api/chat
+{
+  "message": "Quelles sont les conditions pour une AES a titre exceptionnel ?",
+  "mode": "analyse_risque"
+}
+```
+
+### Modes disponibles
+
+| Mode | Description |
+|------|-------------|
+| `analyse_risque` | Analyse juridique structuree avec evaluation des risques |
+| `controle_qualite` | Verification et correction d'un dossier |
+| `interpretation_texte` | Interpretation d'un texte juridique |
+| `redaction_recours` | Aide a la redaction d'un recours |
+
+---
+
+## Domaines de competence
+
+- **CESEDA** : Code de l'entree et du sejour des etrangers
+- **Droit au sejour** : Titres de sejour, renouvellement, AES
+- **Contentieux administratif** : Recours gracieux, hierarchiques, TA
+- **Securite sociale** : Droits sociaux des etrangers
+- **Conventions bilaterales** : France-Tunisie
+- **Droit du travail** : Autorisation de travail, changement de statut
+- **Protection internationale** : Asile, protection subsidiaire
+
+---
+
+## Variables d'environnement (.env)
+
+```env
+OPENAI_API_KEY=sk-...         # Cle API OpenAI (obligatoire)
+LLM_MODEL=gpt-4o-mini         # Modele LLM
+LLM_TEMPERATURE=0.2           # Temperature
+FAISS_INDEX_PATH=data/faiss_index
+TOP_K_RETRIEVAL=5             # Nombre de sources recuperees
+SYSTEM_PROMPT_PATH=prompts/system_prompt.txt
+REQUIRE_SOURCES=true          # Refuser si sources insuffisantes
+MIN_RETRIEVED_DOCS=2
+MAX_SOURCES_DISPLAY=5
+DEFAULT_MODE=analyse_risque
+PORT=5000
+FLASK_DEBUG=true
+```
+
+---
+
+## Licence
+
+MIT - Voir [LICENSE](LICENSE)
+
+## Contact
+
+Pour toute question : [support@carthagolex.com](mailto:support@carthagolex.com)
+
+*Derniere mise a jour : Avril 2026*
